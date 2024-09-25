@@ -2,10 +2,19 @@
     import { goto } from '$app/navigation';
     let email = '';
     let password = '';
+  const API_URL = 'https://chatbot-tec-server.azurewebsites.net';
   
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
       event.preventDefault();
       console.log("Email:", email, "Password:", password);
+
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        body: JSON.stringify({ username: email, password })
+      });
+
+      const data = await response.json();
+      localStorage.setItem('token', data.token);
       goto('/home');
 
       // Aquí puedes agregar la lógica de autenticación
