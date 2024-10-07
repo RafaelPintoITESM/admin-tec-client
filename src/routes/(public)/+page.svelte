@@ -1,65 +1,67 @@
-<script>
+<script lang="ts">
     import { goto } from '$app/navigation';
+    import {post} from '@services/http/httpClient'
+  import { 
+    Toast , 
+    Button, 
+    Card,
+    Label, 
+    Input,
+    DarkMode, 
+  } from 'flowbite-svelte';
+  import { slide } from 'svelte/transition';
+  import { CloseCircleOutline } from 'flowbite-svelte-icons';
     let email = '';
     let password = '';
-  const API_URL = 'https://chatbot-tec-server.azurewebsites.net';
-  
-    async function handleSubmit(event) {
+  let toastStatus = false;
+  let counter = 6;
+  let error = '';
+    async function handleSubmit(event:any) {
       event.preventDefault();
-      console.log("Email:", email, "Password:", password);
-
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        body: JSON.stringify({ username: email, password })
-      });
-
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      goto('/home');
+      const data = await post('auth/login',{ email: email, password });
+      if(data?.error){
+        error = data.error;
+        toastStatus = true;
+        counter = 6;
+        timeout();
+      }
+      else{
+        localStorage.setItem('token', data.token);
+        goto('/home');
+      }
 
       // Aquí puedes agregar la lógica de autenticación
     }
+
+    
+  function timeout() {
+    if (--counter > 0) return setTimeout(timeout, 1000);
+    toastStatus = false;
+  }
   </script>
-  
-  <div class="flex justify-center items-center h-screen">
-    <div class="w-full max-w-md">
-      <form on:submit={handleSubmit} class="bg-white shadow-lg rounded px-8 pt-6 pb-8 mb-4">
-        <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            bind:value={email}
-            required
-            placeholder="Introduce tu email"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-        <div class="mb-6">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            bind:value={password}
-            required
-            placeholder="Introduce tu contraseña"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-        <div class="flex items-center justify-between">
-          <button
-            type="submit"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
-            Iniciar sesión
-          </button>
-        </div>
-      </form>
+  <div class="flex gap-10">
+    <Toast dismissable={true} transition={slide} position="top-right" bind:toastStatus color="red">
+      <CloseCircleOutline slot="icon" class="w-5 h-5" />
+      {error}
+    </Toast>
+  </div>
+  <div class="flex justify-center items-center h-screen bg-white dark:bg-gray-950 text-black dark:text-white w-full">
+    <div class="w-full max-w-md ">      
+      <Card >
+        <form class="flex flex-col space-y-6" on:submit={handleSubmit}>
+          <h3 class="text-xl font-medium text-gray-900 dark:text-white">Login 
+            <DarkMode/></h3>
+          <Label class="space-y-2">
+            <span>Email</span>
+            <Input type="email" name="email" placeholder="name@company.com" required  bind:value={email}/>
+          </Label>
+          <Label class="space-y-2">
+            <span>Password</span>
+            <Input  type="password" name="password" placeholder="•••••" required bind:value={password}/>
+          </Label>
+          <Button type="submit" class="w-full">Iniciar sesión</Button>
+        </form>
+      </Card>
     </div>
   </div>
   
