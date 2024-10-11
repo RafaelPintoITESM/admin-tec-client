@@ -8,11 +8,14 @@
 	import type { GraduateStudy } from '$lib/models/graduateStudy.model';
 	import { CheckCircleSolid } from 'flowbite-svelte-icons';
   import { slide } from 'svelte/transition';
+  import textProcessService from '@services/repository/textProcessService'
+	import LoaderBackdrop from '$lib/components/LoaderBackdrop.svelte';
   
   // Acceder al parámetro slug
      $: id = $page.params.slug;
     let message = '';    
     let toastStatus = false;
+    let blockPage = false;
     let counter = 6;
     let graduateStudy:GraduateStudy ={
         id: id == '0' ? generateUUID() : id,
@@ -22,6 +25,7 @@
     } ;
     let selectedFiles:any;
     let isLoading = true;
+    let blockMessage = '';
     onMount(async () =>{
         if(id != '0'){
             graduateStudy = await get('graduateStudy/'+id);
@@ -56,8 +60,18 @@
     const extractFile = async ()=>{        
         const formData = new FormData();
         formData.append('pdfFile', selectedFiles[0]);
+        blockMessage = 'Extrayendo PDF...';
+        blockPage = true;
         const response = await postForm('pdf/extract', formData);
         graduateStudy.information = response.text;
+        blockPage = false;
+    }
+    const organize = async ()=>{      
+        blockMessage = 'Organizando y resumiendo...';
+        blockPage = true;
+        const response = await textProcessService.organize(graduateStudy.information)
+        graduateStudy.information = response;
+        blockPage = false;
     }
 </script>
   
@@ -85,8 +99,9 @@
                 <div class="col-span-3">
                     <Fileupload bind:files={selectedFiles} />
                 </div>
-                <div class="">
-                  <Button class="w-full" on:click={extractFile}>Extraer</Button>
+                <div class="col-span-1 flex">
+                  <Button class="w-1/2 mx-1" on:click={extractFile} disabled={!selectedFiles}>Extraer</Button>
+                  <Button class="w-1/2 mx-1" color="purple" on:click={organize} disabled={!graduateStudy.information || graduateStudy.information.length == 0}>Resumir</Button>
                 </div>
             </div>
             <Textarea  type="text" placeholder="Información del programa..." rows=10 required  bind:value={graduateStudy.information}/>
@@ -95,3 +110,4 @@
           <Button color="green" class="w-full mt-4" type="submit"> Guardar</Button>
     </form>
 </Loader>
+<LoaderBackdrop isActive={blockPage} message={blockMessage}/>
