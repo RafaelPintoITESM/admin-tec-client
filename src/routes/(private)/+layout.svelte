@@ -63,7 +63,7 @@
 
   <!-- Contenido que ocupa el espacio restante -->
   <div class="flex-grow bg-white dark:bg-gray-800 text-black dark:text-white w-full">
-    <main class="w-full px-4 py-4 mx-auto overflow-y-auto px-40">
+    <main class="w-full px-4 py-4 mx-auto overflow-y-auto">
       <slot />
     </main>
   </div>
