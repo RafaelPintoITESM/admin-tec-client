@@ -13,22 +13,22 @@
   import { CloseCircleOutline } from 'flowbite-svelte-icons';
     let email = '';
     let password = '';
-  let toastStatus = false;
-  let counter = 6;
-  let error = '';
-    async function handleSubmit(event:any) {
-      event.preventDefault();
-      const data = await post('auth/login',{ email: email, password });
-      if(data?.error){
-        error = data.error;
-        toastStatus = true;
-        counter = 6;
-        timeout();
-      }
-      else{
-        localStorage.setItem('token', data.token);
-        goto('/home');
-      }
+    let toastStatus = false;
+    let counter = 6;
+    let error = '';
+      async function handleSubmit(event:any) {
+        event.preventDefault();
+        const data = await post('auth/login',{ email: email, password });
+        if(data?.error){
+          error = data.error;
+          toastStatus = true;
+          counter = 6;
+          timeout();
+        }
+        else{
+          localStorage.setItem('token', data.token);
+          goto('/home');
+        }
 
       // Aquí puedes agregar la lógica de autenticación
     }
