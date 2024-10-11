@@ -1,3 +1,3 @@
 export const config ={
-    urlAPI : 'http://localhost:3000'
+    urlAPI : 'https://chatbot-tec-server.azurewebsites.net'
 }
