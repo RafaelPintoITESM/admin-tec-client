@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { GraduateStudy } from '$lib/models/graduateStudy.model';
     import { Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell , Button, Popover, Modal } from 'flowbite-svelte';
-	import { get ,Delete} from '@services/http/httpClient';
+	import { graduateStudyRepository} from '@services/repository/graduateStudyRepository';
 	import { onMount } from 'svelte';
 	import Loader from '$lib/components/Loader.svelte';
     import { PlusOutline , ExclamationCircleOutline} from 'flowbite-svelte-icons';
@@ -16,7 +16,7 @@
 
     const getGraduateStudies = async () =>{
         isLoading = true;
-        graduateStudies = (await get('graduateStudy')) as GraduateStudy[];
+        graduateStudies =  await graduateStudyRepository.getAll();
         isLoading = false;
     }
 
@@ -32,7 +32,7 @@
     }
 
     const deleteProgram = async (id:string)=>{
-        await Delete("graduateStudy/"+id);
+        await graduateStudyRepository.delete(id);
         await getGraduateStudies();
     }
 

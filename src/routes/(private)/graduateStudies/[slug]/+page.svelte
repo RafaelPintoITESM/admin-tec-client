@@ -1,7 +1,8 @@
 <script lang="ts">
     import { page } from '$app/stores';
     import { Label, Input, Textarea ,Button, Toast, Fileupload } from 'flowbite-svelte';
-	import { get,post, postForm } from '@services/http/httpClient';
+	import { graduateStudyRepository} from '@services/repository/graduateStudyRepository';
+	import { postForm} from '@services/http/httpClient';
 	import { onMount } from 'svelte';
   import { goto } from '$app/navigation';  // Redirección dentro de SvelteKit
 	import Loader from '$lib/components/Loader.svelte';
@@ -18,7 +19,7 @@
     let blockPage = false;
     let counter = 6;
     let graduateStudy:GraduateStudy ={
-        id: id == '0' ? generateUUID() : id,
+        id: '',
         name: '',
         information: '',
         detail: ''
@@ -28,13 +29,14 @@
     let blockMessage = '';
     onMount(async () =>{
         if(id != '0'){
-            graduateStudy = await get('graduateStudy/'+id);
+            graduateStudy = await graduateStudyRepository.getById(id);
         }
         isLoading = false;
     })
     const handleSubmit = async () =>{
-        console.log(graduateStudy);
-        const response = await post('graduateStudy',graduateStudy)       
+        const response = !graduateStudy.id ?
+            await graduateStudyRepository.create(graduateStudy) : 
+            await graduateStudyRepository.update(graduateStudy);
         message = response.message;
         toastStatus = true;
         counter = 6;
@@ -42,14 +44,6 @@
         setTimeout(() => {            
             goto("/graduateStudies")
         }, 1000);
-    }
-
-    function generateUUID() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16 | 0,
-                v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
     }
     
     function timeout() {

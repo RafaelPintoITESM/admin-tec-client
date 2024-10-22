@@ -13,7 +13,6 @@ export async function get(route:string){
         localStorage.removeItem('token');
         goto("/")
       }
-      console.log(response)
       return await response.json();
 }
 
@@ -41,6 +40,18 @@ export async function postForm(route:string ,body:FormData){
       return await response.json();
 }
 
+export async function put(route:string ,id:string, body:any){
+  let token = localStorage.getItem('token');
+  const response = await fetch(`${config.urlAPI}/${route}/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify(body)
+    });
+    return await response.json();
+}
 export async function Delete(route:string ,body:any){
   let token = localStorage.getItem('token');
     const response = await fetch(`${config.urlAPI}/${route}`, {
